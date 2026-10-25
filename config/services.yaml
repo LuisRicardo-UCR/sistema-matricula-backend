@@ -7,6 +7,8 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    # Carpeta pública donde FileUploader guardará las fotografías de los cursos.
+    app.upload_directory: '%kernel.project_dir%/public/uploads/cursos'
 
 services:
     # default configuration for services in *this* file
@@ -19,5 +21,8 @@ services:
     App\:
         resource: '../src/'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    # Symfony no puede deducir automáticamente el valor de un argumento string.
+    # Se configura explícitamente para resolver el error de autowiring de FileUploader.
+    App\Service\FileUploader:
+        arguments:
+            $targetDirectory: '%app.upload_directory%'

@@ -14,6 +14,17 @@ class FileUploader
 
     public function upload(UploadedFile $file): string
     {
+        // La carpeta se crea al primer uso si todavía no existe.
+        if (!is_dir($this->getTargetDirectory())
+            && !mkdir($this->getTargetDirectory(), 0775, true)
+            && !is_dir($this->getTargetDirectory())
+        ) {
+            throw new \RuntimeException(sprintf(
+                'No se pudo crear el directorio de carga: "%s".',
+                $this->getTargetDirectory()
+            ));
+        }
+
         $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $safeFilename = $this->slugger->slug($originalFilename);
         $fileName = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
@@ -21,7 +32,7 @@ class FileUploader
         try {
             $file->move($this->getTargetDirectory(), $fileName);
         } catch (FileException $e) {
-            throw new \Exception('Error al subir el archivo al servidor');
+            throw new \RuntimeException('Error al subir el archivo al servidor.', 0, $e);
         }
 
         return $fileName;

@@ -86,10 +86,11 @@ php bin/console doctrine:migrations:migrate
 ---
 
 ## 5. Lógica de Negocio (Control de Cupos)
-La validación principal se encuentra aislada en el servicio `src/Service/MatriculaService.php`:
-- **Existencia:** Verifica que el estudiante y el curso existan.
-- **Estado:** Comprueba que el curso se encuentre `'Disponible'`.
-- **Cupo Máximo:** Cuenta las matrículas asociadas (`count($curso->getMatriculas())`) y las compara estrictamente con el `cupoMaximo` antes de permitir la persistencia.
+La lógica de negocio se concentra en los servicios y los controladores se encargan de traducir resultados y errores a respuestas HTTP:
+- `MatriculaService`: valida estudiante, curso y cupo; asigna fecha y estado a la matrícula, recalcula el estado del curso al inscribir, cambiar o retirar una matrícula.
+- `EstudianteService`: valida el nombre y evita eliminar estudiantes que tengan matrículas asociadas.
+- `CursoService`: valida longitudes de los campos de texto, controla altas/ediciones/eliminaciones y recalcula `Disponible` o `Lleno` con base en el cupo y las matrículas existentes.
+- Las excepciones de validación se convierten en respuestas `400`, los recursos inexistentes en `404` y otros errores se registran y responden como `500`.
 
 ---
 
